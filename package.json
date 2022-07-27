@@ -1,0 +1,29 @@
+{
+  "name": "Patreon Syncer",
+  "version": "1.0.0",
+  "description": "Soul test framework bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "nodemon ./bin/www --ignore *.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "Soul Green",
+  "license": "Unlicenced",
+  "private": true,
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.5",
+    "discord.js": "^13.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "nodemon": "^2.0.12"
+  }
+}
