@@ -113,7 +113,7 @@ client.once("ready", async () => {
 	if (newMember.guild.id == ops.serverID) return;
 	const extraRoles = (oldMember.roles.cache.difference(newMember.roles.cache));
 	if (extraRoles.size == 0) return;
-	if (extraRoles.size > 1) console.error(`[${dateToTime(new Date())}]: IMPORTANT ERROR: extraRoles.size was greater than 1. Impossible? Working with the first role anyway.\n`, extraRoles, "\noldMember:", oldMember, "\nnewMember:", newMember);
+	if (extraRoles.size > 1) console.error(`[${dateToTime(new Date())}]: IMPORTANT ERROR: extraRoles.size was greater than 1. Impossible? Working with the first role anyway.\nExtraroles:`, extraRoles.map(r => r.name), "\noldMember:", oldMember.roles.map(r => r.name), "\nnewMember:", newMember.roles.map(r => r.name));
 	const role = extraRoles.first();
 	Sync.checkRole(newMember, role);
 })
