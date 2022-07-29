@@ -53,11 +53,11 @@ module.exports = {
 			}
 		}
 	},
-	async checkRole(member, role){
-		const server = role.guild;
+	async checkRole(member, roleId){
+		const server = member.guild;
 		const serverPatIds = patreonIds.get(server.id);
 		const serverVIPIds = vipIds.get(server.id);
-		if (!serverPatIds.includes(role.id) && !serverVIPIds.includes(role.id)) return;
+		if (!serverPatIds.includes(roleId) && !serverVIPIds.includes(roleId)) return;
 		const res = await module.exports.check(member);
 		return res;
 	},

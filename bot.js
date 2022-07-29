@@ -15,6 +15,7 @@ const client = new Discord.Client({
 	],
 	partials: [
 		"CHANNEL",
+		"GUILD_MEMBER",
 	],
 	presence: {
 		status: "online",
@@ -105,23 +106,34 @@ client.once("ready", async () => {
 		console.log(`[${dateToTime(new Date())}]: Daily sweep of patreon members...`);
 		Sync.sweep(server);
 	}, 24 * 60 * 60 * 1000);
+	client.on("guildMemberUpdate", async (oldMember, newMember) => {
+		if (newMember.partial) console.log("newMember was partial. newMember:", newMember);
+		if (newMember.guild.id == ops.serverID) return;
+		const audit = await newMember.guild.fetchAuditLogs({
+			limit:1,
+			type: "MEMBER_ROLE_UPDATE",
+		});
+		const entry = audit.entries.first();
+		const entTime = entry.createdTimestamp,
+					entKey = entry.changes[0].key,
+					entTargetId = entry.target.id;
+		if (
+			entTime > Date.now() - 5000
+			&& (entKey == "$add" || entKey == "$remove")
+			&& entTargetId == newMember.id
+		) {
+			Sync.checkRole(newMember, entry.changes[0].new[0].id);
+		}
+	})
+	.on("guildMemberAdd", async (guildMember) => {
+		if (guildMember.guild.id != ops.serverID) return;
+		const res = await Sync.check(guildMember);
+		if (res == "added") console.log(`${guildMember.user.username}#${guildMember.id} joined the server and was given a role`);
+		if (res == "removed") console.error(`Impossible bug. ${guildMember.user.username}#${guildMember.id} had erroneous roles upon entering the main server...?`);
+	});
 })
 .on("messageCreate", async (message) => {
 	if (message.guild == server) handleCommand(message, new Date()); // command handler
-})
-.on("guildMemberUpdate", async (oldMember, newMember) => {
-	if (newMember.guild.id == ops.serverID) return;
-	const extraRoles = (oldMember.roles.cache.difference(newMember.roles.cache));
-	if (extraRoles.size == 0) return;
-	if (extraRoles.size > 1) console.error(`[${dateToTime(new Date())}]: IMPORTANT ERROR: extraRoles.size was greater than 1. Impossible? Working with the first role anyway.\nExtraroles:`, extraRoles.map(r => r.name), "\noldMember:", oldMember.roles.cache.map(r => r.name), "\nnewMember:", newMember.roles.cache.map(r => r.name));
-	const role = extraRoles.first();
-	Sync.checkRole(newMember, role);
-})
-.on("guildMemberAdd", async (guildMember) => {
-	if (guildMember.guild.id != ops.serverID) return;
-	const res = await Sync.check(guildMember);
-	if (res == "added") console.log(`${guildMember.user.username}#${guildMember.id} joined the server and was given a role`);
-	if (res == "removed") console.error(`Impossible bug. ${guildMember.user.username}#${guildMember.id} had erroneous roles upon entering the main server...?`);
 })
 .on("shardError", (error) => {
 	console.error(`[${dateToTime(new Date())}]: Websocket disconnect: ${error}`);
