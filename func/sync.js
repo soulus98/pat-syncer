@@ -11,6 +11,7 @@ module.exports = {
 	async sweep(server){
 		console.log("Loading members...");
 		const allMembers = await server.members.fetch();
+		console.log(allMembers.size);
 		const roledMembers = allMembers.filter(m => m.roles.cache.has(ops.patRole) || m.roles.cache.has(ops.vipRole));
 		console.log("Members loaded. Checking and sweeping.");
 		const guildFiles = fs.readdirSync(path.resolve(__dirname, "../server/guilds")).filter(fileName => fileName.endsWith(".json"));
@@ -62,6 +63,7 @@ module.exports = {
 		return res;
 	},
 	async check(member){
+		console.log(member.user.username);
 		if (member.id == "503212508413165599") console.log("testo0");
 		if (list.includes(member.id)) {
 			return "overriden";
