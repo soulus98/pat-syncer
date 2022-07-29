@@ -62,12 +62,15 @@ module.exports = {
 		return res;
 	},
 	async check(member){
+		if (member.id == "503212508413165599") console.log("testo0");
 		if (list.includes(member.id)) {
 			return "overriden";
 		}
 		try {
+			if (member.id == "503212508413165599") console.log("testo1");
 			const givePat = await checkPat(member);
 			const giveVIP = await checkVIP(member);
+			if (member.id == "503212508413165599") console.log("testo2", givePat, giveVIP);
 			const server = await member.client.guilds.fetch(ops.serverID);
 			let serverMember;
 			try {
@@ -79,6 +82,7 @@ module.exports = {
 			const memberRoles = serverMember.roles;
 			const hadPat = memberRoles.cache.has(ops.patRole);
 			const hadVIP = memberRoles.cache.has(ops.vipRole);
+			if (member.id == "503212508413165599") console.log("testo3", hadPat, hadVIP);
 			const results = [];
 			if (givePat && hadPat) {
 				results.push(false);
@@ -99,6 +103,7 @@ module.exports = {
 				results.push(false);
 			}
 			if (!results[0] && !results[1]) return;
+			if (member.id == "503212508413165599") console.log("testo4", results);
 			let addRes = [],
 					remRes = [];
 			if (results[0] == "addPat") {
@@ -120,6 +125,7 @@ module.exports = {
 			else result.push("added");
 			if (remRes.length == 0) remRes = ["Nothing"];
 			else result.push("removed");
+			if (member.id == "503212508413165599") console.log("testo5", result);
 			const embed = new MessageEmbed()
 			.setColor(0xFFFF00)
 			.setTitle("Roles updated.")
@@ -130,6 +136,7 @@ module.exports = {
 			logsChannel.send({ embeds: [embed] });
 			return result;
 		} catch (err) {
+			if (member.id == "503212508413165599") console.log("testo?");
 			console.error(err);
 		}
 	},
