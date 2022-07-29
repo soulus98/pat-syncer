@@ -1,6 +1,7 @@
 const fs = require("fs"),
 			path = require("path"),
 			{ Collection, MessageEmbed } = require("discord.js"),
+			{ dateToTime } = require("./misc.js"),
 			patreonIds = new Collection,
 			vipIds = new Collection;
 
@@ -35,7 +36,7 @@ module.exports = {
 		const logsChannel = await server.channels.fetch(ops.logsChannel);
 		logsChannel.send("Sweeping server for VIP and Patreon Roles");
 		await checkMember(0);
-		console.log(`Sweeped. ${removedAmount} members had their roles removed and ${addedAmount} members had roles added.`);
+		console.log(`[${dateToTime(new Date())}]: Sweeped. ${removedAmount} members had their roles removed and ${addedAmount} members had roles added.`);
 		logsChannel.send(`Sweep finished! ${removedAmount} members had their roles removed and ${addedAmount} members had roles added.`);
 		async function checkMember(i) {
 			const member = roledMembers.at(i);
