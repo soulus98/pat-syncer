@@ -1,6 +1,6 @@
 const fs = require("fs"),
 			path = require("path"),
-			{ Collection, MessageEmbed } = require("Discord.js"),
+			{ Collection, MessageEmbed } = require("discord.js"),
 			patreonIds = new Collection,
 			vipIds = new Collection;
 
