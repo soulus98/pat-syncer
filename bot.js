@@ -106,6 +106,7 @@ client.once("ready", async () => {
 		console.log(`[${dateToTime(new Date())}]: Daily sweep of patreon members...`);
 		Sync.sweep(server);
 	}, 24 * 60 * 60 * 1000);
+
 	client.on("guildMemberUpdate", async (oldMember, newMember) => {
 		if (newMember.partial) console.log("newMember was partial. newMember:", newMember);
 		if (newMember.guild.id == ops.serverID) return;
@@ -131,6 +132,7 @@ client.once("ready", async () => {
 		if (res == "added") console.log(`${guildMember.user.username}#${guildMember.id} joined the server and was given a role`);
 		if (res == "removed") console.error(`Impossible bug. ${guildMember.user.username}#${guildMember.id} had erroneous roles upon entering the main server...?`);
 	});
+
 })
 .on("messageCreate", async (message) => {
 	if (message.guild == server) handleCommand(message, new Date()); // command handler
