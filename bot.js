@@ -161,12 +161,10 @@ client.once("ready", async () => {
 
 process.on("uncaughtException", (err) => {
 	errorMessage(new Date(), false, `Uncaught Exception: ${err}`);
-});
-
-process.on("unhandledRejection", (err, promise) => {
+})
+.on("unhandledRejection", (err, promise) => {
 	console.error(`[${dateToTime(new Date())}]: Unhandled rejection at `, promise, `reason: ${err}`);
-});
-
-process.on("SIGINT", () => {
+})
+.on("SIGINT", () => {
   console.log(`Process ${process.pid} has been interrupted`);
 });

@@ -119,12 +119,14 @@ module.exports = {
 			else result.push("added");
 			if (remRes.length == 0) remRes = ["Nothing"];
 			else result.push("removed");
+			const patString = (givePat) ? `\nPatreon found in: ${givePat}` : "";
+			const vipString = (giveVIP) ? `\nVIP found in: ${giveVIP}` : "";
 			const embed = new MessageEmbed()
 			.setColor(0xFFFF00)
 			.setTitle("Roles updated.")
 			.setThumbnail(member.user.displayAvatarURL())
-			.setDescription(`User: ${member}\nAdded: ${addRes.join("\n• ")}\nRemoved: ${remRes.join("\n• ")}`);
-			console.log(`${member.user.username}#${member.id} Added: ${addRes.join(", ")}. Removed: ${remRes.join(", ")}`);
+			.setDescription(`User: ${member}\nAdded: ${addRes.join(" & ")}\nRemoved: ${remRes.join(" & ")}${patString}${vipString}`);
+			console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} Added: ${addRes.join(", ")}. Removed: ${remRes.join(", ")}`);
 			const logsChannel = await server.channels.fetch(ops.logsChannel);
 			logsChannel.send({ embeds: [embed] });
 			return result;
@@ -189,7 +191,7 @@ async function checkPat(member){
 		}
 		for (const roleId of arr) {
 			if (sMember.roles.cache.has(roleId)) {
-				return true;
+				return s.name;
 			}
 		}
 	}
@@ -207,7 +209,7 @@ async function checkVIP(member) {
 		}
 		for (const roleId of arr) {
 			if (sMember.roles.cache.has(roleId)) {
-				return true;
+				return s.name;
 			}
 		}
 	}

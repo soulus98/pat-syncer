@@ -1,6 +1,6 @@
 {
   "name": "Patreon Syncer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Soul test framework bot",
   "main": "bot.js",
   "scripts": {
