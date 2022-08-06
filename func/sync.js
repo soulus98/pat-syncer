@@ -61,6 +61,7 @@ module.exports = {
 		console.log(`[${dateToTime(new Date())}]: Sweeped.`);
 		logsChannel.send("Plus Sweep finished!");
 
+
 		async function reverseCheck(i) {
 			const mem = plusableMembers.at(i);
 			module.exports.roleReverse(mem, "$add");
@@ -202,6 +203,7 @@ module.exports = {
 		logsChannel.send({ embeds: [embed] });
 	},
 	async checkReverseRemove(guildMember){
+		const plusRemovedServerNames = [];
 		for (const [sId, id] of plusIds) {
 			const s = await guildMember.client.guild.fetch(sId);
 			let sMember;
@@ -212,7 +214,16 @@ module.exports = {
 				continue;
 			}
 			if (sMember.roles.cache.has(id)) await sMember.roles.remove(id);
+			plusRemovedServerNames.push(s.name);
 		}
+		const embed = new MessageEmbed()
+		.setColor(0xFF0000)
+		.setTitle("Member left. Plus removed.")
+		.setThumbnail(guildMember.user.displayAvatarURL())
+		.setDescription(`User: ${guildMember} left ${guildMember.server.name} and had plus removed from:\n• ${plusRemovedServerNames.join("\n• ")}`);
+		console.log(`[${dateToTime(new Date())}]: ${guildMember.user.username}#${guildMember.id} left ${guildMember.server.name} and had plus removed from: ${plusRemovedServerNames.join(", ")}`);
+		const logsChannel = await guildMember.guild.channels.fetch(ops.logsChannel);
+		logsChannel.send({ embeds: [embed] });
 	},
 	async addOverride(id) {
 		if (list.includes(id)) throw "already";
