@@ -123,7 +123,7 @@ client.once("ready", async () => {
 			&& entTargetId == newMember.id
 		) {
 			if (newMember.guild.id != ops.serverID)	Sync.checkRole(newMember, entry.changes[0].new[0].id);
-			else if (entry.changes[0].new[0].id == ops.plusRole) Sync.roleReverse(newMember);
+			else if (entry.changes[0].new[0].id == ops.plusRole) Sync.roleReverse(newMember, entKey);
 		}
 	})
 	.on("guildMemberAdd", async (guildMember) => {

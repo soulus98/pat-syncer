@@ -155,7 +155,7 @@ module.exports = {
 			console.error(err);
 		}
 	},
-	async roleReverse(member){
+	async roleReverse(member, key){
 		const plusGrantedServerNames = [];
 		for (const [sId, roleId] of plusIds) {
 			const s = await member.client.guilds.cache.get(sId);
@@ -166,17 +166,21 @@ module.exports = {
 				if (!e.code == 10007) console.error(e);
 				continue;
 			}
-			if (sMember.roles.cache.has(roleId)) continue;
-			await sMember.roles.add(roleId);
+			if (key == "$add" && sMember.roles.cache.has(roleId)) continue;
+			if (key == "$remove" && !sMember.roles.cache.has(roleId)) continue;
+			if (key == "$add") await sMember.roles.add(roleId);
+			if (key == "$remove") await sMember.roles.remove(roleId);
 			plusGrantedServerNames.push(s.name);
 		}
 		if (plusGrantedServerNames.length == 0) return;
 		const embed = new MessageEmbed()
 		.setColor(0x00FF00)
-		.setTitle("Plus granted.")
-		.setThumbnail(member.user.displayAvatarURL())
-		.setDescription(`User: ${member}\nAdded plus in:\n• ${plusGrantedServerNames.join("\n• ")}`);
-		console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} Added plus in: ${plusGrantedServerNames.join(", ")}`);
+		.setThumbnail(member.user.displayAvatarURL());
+		if (key == "$add") embed.setDescription(`User: ${member}\nAdded plus in:\n• ${plusGrantedServerNames.join("\n• ")}`)
+		.setTitle("Plus granted.");
+		if (key == "$remove") embed.setDescription(`User: ${member}\nRemoved plus from:\n• ${plusGrantedServerNames.join("\n• ")}`)
+		.setTitle("Plus removed.");
+		console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} ${key} plus in: ${plusGrantedServerNames.join(", ")}`);
 		const logsChannel = await member.guild.channels.fetch(ops.logsChannel);
 		logsChannel.send({ embeds: [embed] });
 	},
