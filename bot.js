@@ -134,6 +134,9 @@ client.once("ready", async () => {
 		} else {
 			Sync.checkReverseJoin(guildMember);
 		}
+	})
+	.on("guildMemberRemove", async (guildMember) => {
+		Sync.checkReverseRemove(guildMember);
 	});
 
 })

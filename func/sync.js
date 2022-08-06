@@ -63,7 +63,7 @@ module.exports = {
 
 		async function reverseCheck(i) {
 			const mem = plusableMembers.at(i);
-			module.exports.roleReverse(mem);
+			module.exports.roleReverse(mem, "$add");
 			if (i == plusableMembers.size - 1) return;
 			await reverseCheck(i + 1);
 			return;
@@ -200,6 +200,19 @@ module.exports = {
 		console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} Joined: ${s.name} and was given plus`);
 		const logsChannel = await member.guild.channels.fetch(ops.logsChannel);
 		logsChannel.send({ embeds: [embed] });
+	},
+	async checkReverseRemove(guildMember){
+		for (const [sId, id] of plusIds) {
+			const s = await guildMember.client.guild.fetch(sId);
+			let sMember;
+			try {
+				sMember = await s.members.fetch(guildMember.id);
+			} catch (e) {
+				if (!e.code == 10007) console.error(e);
+				continue;
+			}
+			if (sMember.roles.cache.has(id)) await sMember.roles.remove(id);
+		}
 	},
 	async addOverride(id) {
 		if (list.includes(id)) throw "already";
