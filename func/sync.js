@@ -205,7 +205,13 @@ module.exports = {
 		const s = guildMember.guild;
 		if (!plusIds.has(s.id)) return;
 		const server = await guildMember.client.guilds.fetch(ops.serverID);
-		const member = await server.members.fetch(guildMember.id);
+		let member;
+		try {
+			member = await server.members.fetch(guildMember.id);
+		} catch (e) {
+			if (!e.code == 10007) console.error(e);
+			return;
+		}
 		if (!member?.roles.cache.has(ops.plusRole)) return;
 		const plusId = plusIds.get(s.id);
 		await guildMember.roles.add(plusId);
