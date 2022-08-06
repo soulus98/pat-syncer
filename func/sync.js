@@ -61,6 +61,22 @@ module.exports = {
 		console.log(`[${dateToTime(new Date())}]: Sweeped.`);
 		logsChannel.send("Plus Sweep finished!");
 
+		// Likely isn't usable at scale
+		// async function checkAllPlus() {
+		// 	let plusGrantedMemberIds = new Collection;
+		// 	// for (const [ sId, roleId ] of plusIds) {
+		// 	const roleId = plusIds.at(1);
+		// 	const sId = plusIds.keyAt(1);
+		// 	const s = await server.client.guilds.fetch(sId);
+		// 	const allRoles = await s.roles.fetch();
+		// 	const role = allRoles.get(roleId);
+		// 	console.log(role.members);
+		// 	console.log(role);
+		// 	plusGrantedMemberIds = plusGrantedMemberIds.concat(role.members);
+		// 	console.log(plusGrantedMemberIds.size);
+		// 	// }
+		// 	console.log(plusGrantedMemberIds.size);
+		// }
 
 		async function reverseCheck(i) {
 			const mem = plusableMembers.at(i);
@@ -205,7 +221,7 @@ module.exports = {
 	async checkReverseRemove(guildMember){
 		const plusRemovedServerNames = [];
 		for (const [sId, id] of plusIds) {
-			const s = await guildMember.client.guild.fetch(sId);
+			const s = await guildMember.client.guilds.fetch(sId);
 			let sMember;
 			try {
 				sMember = await s.members.fetch(guildMember.id);
@@ -220,8 +236,8 @@ module.exports = {
 		.setColor(0xFF0000)
 		.setTitle("Member left. Plus removed.")
 		.setThumbnail(guildMember.user.displayAvatarURL())
-		.setDescription(`User: ${guildMember} left ${guildMember.server.name} and had plus removed from:\n• ${plusRemovedServerNames.join("\n• ")}`);
-		console.log(`[${dateToTime(new Date())}]: ${guildMember.user.username}#${guildMember.id} left ${guildMember.server.name} and had plus removed from: ${plusRemovedServerNames.join(", ")}`);
+		.setDescription(`User: ${guildMember} left ${guildMember.guild.name} and had plus removed from:\n• ${plusRemovedServerNames.join("\n• ")}`);
+		console.log(`[${dateToTime(new Date())}]: ${guildMember.user.username}#${guildMember.id} left ${guildMember.guild.name} and had plus removed from: ${plusRemovedServerNames.join(", ")}`);
 		const logsChannel = await guildMember.guild.channels.fetch(ops.logsChannel);
 		logsChannel.send({ embeds: [embed] });
 	},
