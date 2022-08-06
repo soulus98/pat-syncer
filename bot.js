@@ -109,7 +109,6 @@ client.once("ready", async () => {
 
 	client.on("guildMemberUpdate", async (oldMember, newMember) => {
 		if (newMember.partial) console.log("newMember was partial. newMember:", newMember);
-		if (newMember.guild.id == ops.serverID) return;
 		const audit = await newMember.guild.fetchAuditLogs({
 			limit:1,
 			type: "MEMBER_ROLE_UPDATE",
@@ -123,14 +122,18 @@ client.once("ready", async () => {
 			&& (entKey == "$add" || entKey == "$remove")
 			&& entTargetId == newMember.id
 		) {
-			Sync.checkRole(newMember, entry.changes[0].new[0].id);
+			if (newMember.guild.id != ops.serverID)	Sync.checkRole(newMember, entry.changes[0].new[0].id);
+			else if (entry.changes[0].new[0].id == ops.plusRole) Sync.roleReverse(newMember);
 		}
 	})
 	.on("guildMemberAdd", async (guildMember) => {
-		if (guildMember.guild.id != ops.serverID) return;
-		const res = await Sync.check(guildMember);
-		if (res == "added") console.log(`${guildMember.user.username}#${guildMember.id} joined the server and was given a role`);
-		if (res == "removed") console.error(`Impossible bug. ${guildMember.user.username}#${guildMember.id} had erroneous roles upon entering the main server...?`);
+		if (guildMember.guild.id == ops.serverID) {
+			const res = await Sync.check(guildMember);
+			if (res == "added") console.log(`${guildMember.user.username}#${guildMember.id} joined the server and was given a role`);
+			if (res == "removed") console.error(`Impossible bug. ${guildMember.user.username}#${guildMember.id} had erroneous roles upon entering the main server...?`);
+		} else {
+			Sync.checkReverseJoin(guildMember);
+		}
 	});
 
 })

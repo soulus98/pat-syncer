@@ -3,7 +3,8 @@ const fs = require("fs"),
 			{ Collection, MessageEmbed } = require("discord.js"),
 			{ dateToTime } = require("./misc.js"),
 			patreonIds = new Collection,
-			vipIds = new Collection;
+			vipIds = new Collection,
+			plusIds = new Collection;
 
 let list = [];
 
@@ -24,11 +25,8 @@ module.exports = {
 					patreonIds.set(guildConfig.serverID, [roleId]);
 				}
 			}
-			const arr = vipIds.get(guildConfig.serverID);
-			if (arr) {
-				arr.push(guildConfig.vipRole);
-				vipIds.set(guildConfig.serverID, arr);
-			}	else vipIds.set(guildConfig.serverID, [guildConfig.vipRole]);
+			vipIds.set(guildConfig.serverID, [guildConfig.vipRole]);
+			plusIds.set(guildConfig.serverID, guildConfig.plusRole);
 		}
 		let removedAmount = 0;
 		let addedAmount = 0;
@@ -37,9 +35,11 @@ module.exports = {
 		await checkMember(0);
 		console.log(`[${dateToTime(new Date())}]: Sweeped. ${removedAmount} members had their roles removed and ${addedAmount} members had roles added.`);
 		logsChannel.send(`Sweep finished! ${removedAmount} members had their roles removed and ${addedAmount} members had roles added.`);
+
 		async function checkMember(i) {
 			const member = allMembers.at(i);
 			if (member.bot) {
+				if (i == allMembers.size - 1) return;
 				await checkMember(i + 1);
 				return;
 			}	else {
@@ -50,6 +50,23 @@ module.exports = {
 				await checkMember(i + 1);
 				return;
 			}
+		}
+		if (!ops.plusRole) return;
+		const plusRole = await server.roles.fetch(ops.plusRole);
+		const plusableMembers = plusRole.members;
+		if (plusableMembers.size == 0) return console.log("There were no plusable members");
+		console.log("Sweeping server for plusable members...");
+		logsChannel.send("Sweeping server for plusable members");
+		await reverseCheck(0);
+		console.log(`[${dateToTime(new Date())}]: Sweeped.`);
+		logsChannel.send("Plus Sweep finished!");
+
+		async function reverseCheck(i) {
+			const mem = plusableMembers.at(i);
+			module.exports.roleReverse(mem);
+			if (i == plusableMembers.size - 1) return;
+			await reverseCheck(i + 1);
+			return;
 		}
 	},
 	async checkRole(member, roleId){
@@ -100,6 +117,10 @@ module.exports = {
 			if (!results[0] && !results[1]) return;
 			let addRes = [],
 					remRes = [];
+			if (memberRoles.cache.has(ops.verifiedRole) && !giveVIP && !givePat) {
+				memberRoles.remove(ops.verifiedRole);
+				remRes.push("Verified");
+			}
 			if (results[0] == "addPat") {
 				await memberRoles.add(ops.patRole);
 				addRes.push("Patreon");
@@ -133,6 +154,48 @@ module.exports = {
 		} catch (err) {
 			console.error(err);
 		}
+	},
+	async roleReverse(member){
+		const plusGrantedServerNames = [];
+		for (const [sId, roleId] of plusIds) {
+			const s = await member.client.guilds.cache.get(sId);
+			let sMember;
+			try {
+				sMember = await s.members.fetch(member.id);
+			} catch (e) {
+				if (!e.code == 10007) console.error(e);
+				continue;
+			}
+			if (sMember.roles.cache.has(roleId)) continue;
+			await sMember.roles.add(roleId);
+			plusGrantedServerNames.push(s.name);
+		}
+		if (plusGrantedServerNames.length == 0) return;
+		const embed = new MessageEmbed()
+		.setColor(0x00FF00)
+		.setTitle("Plus granted.")
+		.setThumbnail(member.user.displayAvatarURL())
+		.setDescription(`User: ${member}\nAdded plus in:\n• ${plusGrantedServerNames.join("\n• ")}`);
+		console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} Added plus in: ${plusGrantedServerNames.join(", ")}`);
+		const logsChannel = await member.guild.channels.fetch(ops.logsChannel);
+		logsChannel.send({ embeds: [embed] });
+	},
+	async checkReverseJoin(guildMember){
+		const s = guildMember.guild;
+		if (!plusIds.has(s.id)) return;
+		const server = await guildMember.client.guilds.fetch(ops.serverID);
+		const member = await server.members.fetch(guildMember.id);
+		if (!member?.roles.cache.has(ops.plusRole)) return;
+		const plusId = plusIds.get(s.id);
+		await guildMember.roles.add(plusId);
+		const embed = new MessageEmbed()
+		.setColor(0x00FF00)
+		.setTitle("New member. Plus granted.")
+		.setThumbnail(member.user.displayAvatarURL())
+		.setDescription(`User: ${member} joined ${s.name} and was given plus`);
+		console.log(`[${dateToTime(new Date())}]: ${member.user.username}#${member.id} Joined: ${s.name} and was given plus`);
+		const logsChannel = await member.guild.channels.fetch(ops.logsChannel);
+		logsChannel.send({ embeds: [embed] });
 	},
 	async addOverride(id) {
 		if (list.includes(id)) throw "already";
